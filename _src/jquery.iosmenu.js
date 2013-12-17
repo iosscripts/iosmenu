@@ -7,7 +7,7 @@
  * 
  * Copyright (c) 2013 Marc Whitbread
  * 
- * Version: v0.1.10 (12/17/2013)
+ * Version: v0.1.11 (12/17/2013)
  * Minimum requirements: jQuery v1.4+
  *
  * Advanced requirements:
@@ -180,9 +180,9 @@
 			settings.resp.menu_w = $(settings.obj).width();
 			settings.resp.menu_h = $(settings.obj).height();
 			
-			settings.resp.offset_left_op = (settings.menu_location == 'right') ? -settings.resp.menu_w : settings.resp.menu_w;
-			settings.resp.offset_left_cl = (settings.menu_location == 'right') ? 0 : 0;
-			settings.resp.offset_left_mi = (settings.menu_location == 'right') ? -(settings.resp.menu_w * 0.5) : settings.resp.menu_w * 0.5;
+			settings.resp.offset_left_op = (settings.menu_location == 'left') ? settings.resp.menu_w : -settings.resp.menu_w;
+			settings.resp.offset_left_cl = 0;
+			settings.resp.offset_left_mi = (settings.menu_location == 'left') ? settings.resp.menu_w * 0.5 : settings.resp.menu_w * -0.5;
 			
 			settings.resp.pull_threshold_px = parseInt(globals.browser.window_w * settings.touch.pull_threshold_perc, 10);
 			
@@ -437,7 +437,7 @@
 			
 			/* resize event */
 			$(window).bind(globals.browser.orientation_event + '.iosmenu-' + settings.menu_number, function() {
-				methods.update();
+				methods.update(settings.obj);
 			});
 			
 			/* touch events */
@@ -459,14 +459,47 @@
 				start_position: undefined
 			}
 			
-			/* touch start */
-			$(window).bind('touchstart.iosmenu-' + settings.menu_number, function(e) {
+			var start_flag = false;
+			var is_mouse_down = false;
+			
+			/* touch/move start */
+			$(window).bind('touchstart.iosmenu-' + settings.menu_number + ', mousedown.iosmenu-' + settings.menu_number, function(e) {
 				
+				if(start_flag) return true;
+				start_flag = true;
+								
 				if((!globals.browser.is_ie7) && (!globals.browser.is_ie8)) e = e.originalEvent;
+				
+				if(e.type == 'touchstart') {
+							
+					x_pull.event = e.touches[0].pageX;
+					y_pull.event = e.touches[0].pageY;
+					
+				} else {
+				
+					if (window.getSelection) {
+						if (window.getSelection().empty) {
+							window.getSelection().empty();
+						} else if (window.getSelection().removeAllRanges) {
+							window.getSelection().removeAllRanges();
+						}
+					} else if (document.selection) {
+						if(globals.browser.is_ie8) {
+							try { document.selection.empty(); } catch(e) { /* absorb ie8 bug */ }
+						} else {
+							document.selection.empty();
+						}
+					}
+					
+					x_pull.event = e.pageX;
+					y_pull.event = e.pageY;
+					
+					is_mouse_down = true;
+
+				}
 				
 				settings.state.flags.pull_threshold = false;
 				
-				x_pull.event = e.touches[0].pageX;
 				x_pull.rate = new Array(0, 0);
 				x_pull.distance = 0;
 				x_pull.started = false;
@@ -474,7 +507,6 @@
 				x_pull.start_position = (helpers.get_position(settings) - x_pull.event) * -1;
 				x_pull.rate[1] = x_pull.event;
 				
-				y_pull.event = e.touches[0].pageY;
 				y_pull.rate = new Array(0, 0);
 				y_pull.distance = 0;
 				y_pull.started = false;
@@ -485,7 +517,7 @@
 			});
 			
 			/* touch move */
-			$(window).bind('touchmove.iosmenu-' + settings.menu_number, function(e) {
+			$(window).bind('touchmove.iosmenu-' + settings.menu_number + ', mousemove.iosmenu-' + settings.menu_number, function(e) {
 				
 				if((!globals.browser.is_ie7) && (!globals.browser.is_ie8)) e = e.originalEvent;
 				
@@ -493,13 +525,37 @@
 				
 				var menu_offset = helpers.get_position(settings);
 				
-				x_pull.event = e.touches[0].pageX;
+				if(e.type == 'touchstart') {
+							
+					x_pull.event = e.touches[0].pageX;
+					y_pull.event = e.touches[0].pageY;
+					
+				} else {
+					
+					if(!is_mouse_down) return true;
+					
+					if (window.getSelection) {
+						if (window.getSelection().empty) {
+							window.getSelection().empty();
+						} else if (window.getSelection().removeAllRanges) {
+							window.getSelection().removeAllRanges();
+						}
+					} else if (document.selection) {
+						if(globals.browser.is_ie8) {
+							try { document.selection.empty(); } catch(e) { /* absorb ie8 bug */ }
+						} else {
+							document.selection.empty();
+						}
+					}
+					
+					x_pull.event = e.pageX;
+					y_pull.event = e.pageY;
+
+				}
 				
 				x_pull.rate[0] = x_pull.rate[1];
 				x_pull.rate[1] = x_pull.event;
 				x_pull.distance = (x_pull.rate[0] - x_pull.rate[1]) / 2;
-				
-				y_pull.event = e.touches[0].pageY;
 				
 				y_pull.rate[0] = y_pull.rate[1];
 				y_pull.rate[1] = y_pull.event;
@@ -540,7 +596,7 @@
 			});
 			
 			/* touch end */
-			$(window).bind('touchend.iosmenu-' + settings.menu_number, function(e) {
+			$(window).bind('touchend.iosmenu-' + settings.menu_number + ', mouseup.iosmenu-' + settings.menu_number, function(e) {
 				
 				if(settings.state.flags.pull_threshold) return true;
 	
@@ -548,6 +604,9 @@
 				
 				settings = helpers.toggle_menu(settings, x_pull.direction);
 				helpers.update_data(settings);
+				
+				start_flag = false;
+				is_mouse_down = false;
 				
 			});
 			
@@ -577,9 +636,9 @@
 			
 			var node = $(node).eq(0);
 			var data = $(node).data('iosmenu');
-			
+			console.log('a');
 			if(data == undefined) return false;
-			
+
 			settings = helpers.set_resp_settings(data.settings);
 			helpers.set_resp_css(settings);
 		
