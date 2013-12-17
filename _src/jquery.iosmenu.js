@@ -7,7 +7,7 @@
  * 
  * Copyright (c) 2013 Marc Whitbread
  * 
- * Version: v0.1.8 (12/16/2013)
+ * Version: v0.1.9 (12/17/2013)
  * Minimum requirements: jQuery v1.4+
  *
  * Advanced requirements:
@@ -204,7 +204,8 @@
 				width: settings.resp.menu_w + 'px'
 			});
 			
-			helpers.set_position(settings, settings.resp.offset_left_cl);
+			var position = (settings.state.open) ? settings.resp.offset_left_op : settings.resp.offset_left_cl;
+			helpers.set_position(settings, position);
 			
 		},
 		
@@ -507,8 +508,6 @@
 				y_pull.rate[1] = y_pull.event;
 				y_pull.distance = (y_pull.rate[0] - y_pull.rate[1]) / 2;
 				
-				console.log(x_pull.event, settings.resp.pull_threshold, menu_offset);
-				
 				if(settings.state.open)
 					e.preventDefault();
 						
@@ -560,16 +559,12 @@
 		},
 		
 		/* destroy the menu */
-		destroy: function(clear_style, node) {
+		destroy: function(clear_style) {
 			
-			if(node == undefined) node = this;
-			
-			var node = $(node).eq(0);
-			var data = $(node).data('iosmenu');
-			
+			var data = $(this).data('iosmenu');
 			if(data == undefined) return false;
 			
-			$(node).attr('style', '').unbind('.iosmenu, .iosmenu-' + data.settings.menu_number);
+			$(data.settings.obj).attr('style', '').unbind('.iosmenu, .iosmenu-' + data.settings.menu_number);
 			$('body').attr('style', '').unbind('.iosmenu, .iosmenu-' + data.settings.menu_number);
 		
 		},
@@ -598,8 +593,8 @@
 			
 			if(data == undefined) return false;
 			
-			console.log(data.settings);
-			helpers.toggle_menu(data.settings, 1);
+			var direction = (data.settings.state.open) ? -1 : 1;
+			helpers.toggle_menu(data.settings, direction);
 			
 		},
 		
