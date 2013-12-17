@@ -7,7 +7,7 @@
  * 
  * Copyright (c) 2013 Marc Whitbread
  * 
- * Version: v0.1.9 (12/17/2013)
+ * Version: v0.1.10 (12/17/2013)
  * Minimum requirements: jQuery v1.4+
  *
  * Advanced requirements:
@@ -437,10 +437,7 @@
 			
 			/* resize event */
 			$(window).bind(globals.browser.orientation_event + '.iosmenu-' + settings.menu_number, function() {
-				
-				settings = helpers.set_resp_settings(settings);
-				helpers.set_resp_css(settings);
-				
+				methods.update();
 			});
 			
 			/* touch events */
@@ -564,8 +561,12 @@
 			var data = $(this).data('iosmenu');
 			if(data == undefined) return false;
 			
-			$(data.settings.obj).attr('style', '').unbind('.iosmenu, .iosmenu-' + data.settings.menu_number);
-			$('body').attr('style', '').unbind('.iosmenu, .iosmenu-' + data.settings.menu_number);
+			$(data.settings.obj).removeAttr('style').unbind('.iosmenu, .iosmenu-' + data.settings.menu_number);
+			$('body').removeAttr('style').unbind('.iosmenu, .iosmenu-' + data.settings.menu_number);
+			$(window).unbind('.iosmenu, .iosmenu-' + data.settings.menu_number);
+			
+			$(data.settings.obj).removeData();
+			$(data.settings.bg_obj).remove();
 		
 		},
 		
@@ -579,7 +580,8 @@
 			
 			if(data == undefined) return false;
 			
-			/* build out */
+			settings = helpers.set_resp_settings(data.settings);
+			helpers.set_resp_css(settings);
 		
 		},
 		
