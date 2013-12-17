@@ -7,7 +7,7 @@
  * 
  * Copyright (c) 2013 Marc Whitbread
  * 
- * Version: v0.1.6 (11/28/2013)
+ * Version: v0.1.8 (12/16/2013)
  * Minimum requirements: jQuery v1.4+
  *
  * Advanced requirements:
@@ -91,10 +91,12 @@
 				pull_threshold: false
 			}
 		},
+		body_css: {
+			position: 'relative'
+		},
 		css: {
 			position: 'fixed',
 			top: 0,
-			left: '100%',
 			bottom: 0,
 			width: '80%',
 			maxWidth: '300px',
@@ -142,6 +144,12 @@
 		
 		init_css: function(settings) {
 			
+			if(settings.menu_location == 'left') {
+				$(settings.obj).css('right', '100%');
+			} else {
+				$(settings.obj).css('left', '100%');
+			}
+			
 			$(settings.obj).css(settings.css).css({
 				opacity: 0,
 				zIndex: -1000,
@@ -158,7 +166,7 @@
 			
 			settings.bg_obj = bg;
 			
-			$('body').append(bg);
+			$('body').append(bg).css(settings.body_css);
 			
 			return settings;
 			
@@ -172,13 +180,9 @@
 			settings.resp.menu_w = $(settings.obj).width();
 			settings.resp.menu_h = $(settings.obj).height();
 			
-			/*settings.resp.offset_left_op = (settings.menu_location == 'right') ? globals.browser.window_w - settings.resp.menu_w : 0;
-			settings.resp.offset_left_cl = (settings.menu_location == 'right') ? globals.browser.window_w : settings.resp.menu_w * -1;
-			settings.resp.offset_left_mi = (settings.menu_location == 'right') ? globals.browser.window_w - (settings.resp.menu_w * 0.5) : settings.resp.menu_w * -0.5;*/
-			
-			settings.resp.offset_left_op = (settings.menu_location == 'right') ? -settings.resp.menu_w : 0;
-			settings.resp.offset_left_cl = (settings.menu_location == 'right') ? 0 : settings.resp.menu_w * -1;
-			settings.resp.offset_left_mi = (settings.menu_location == 'right') ? -(settings.resp.menu_w * 0.5) : settings.resp.menu_w * -0.5;
+			settings.resp.offset_left_op = (settings.menu_location == 'right') ? -settings.resp.menu_w : settings.resp.menu_w;
+			settings.resp.offset_left_cl = (settings.menu_location == 'right') ? 0 : 0;
+			settings.resp.offset_left_mi = (settings.menu_location == 'right') ? -(settings.resp.menu_w * 0.5) : settings.resp.menu_w * 0.5;
 			
 			settings.resp.pull_threshold_px = parseInt(globals.browser.window_w * settings.touch.pull_threshold_perc, 10);
 			
@@ -311,28 +315,21 @@
 			
 			if(!globals.browser.has_3d_transform || true) {
 				
-				/*settings.obj.css({
-					left: left + 'px',
-					'opacity': opacity
-				});*/
-				
 				$('body').add(settings.fixed_nav_selection).css({
 					'left': left + 'px'
 				});
 				
-				settings.obj.css({
-					left: globals.browser.window_w + left + 'px',
+				if(settings.menu_location == 'left') {
+					$(settings.obj).css('right', globals.browser.window_w - left + 'px');
+				} else {
+					$(settings.obj).css('left', globals.browser.window_w + left + 'px');
+				}
+				
+				$(settings.obj).css({
 					'opacity': opacity
 				});
 				
 			} else {
-				
-				/*settings.obj.css({
-					'webkitTransform': 'matrix(1,0,0,1,' + left + ',0)',
-					'MozTransform': 'matrix(1,0,0,1,' + left + ',0)',
-					'transform': 'matrix(1,0,0,1,' + left + ',0)',
-					'opacity': opacity
-				});*/
 				
 				$('body').add(settings.fixed_nav_selection).css({
 					'webkitTransform': 'matrix(1,0,0,1,' + left + ',0)',

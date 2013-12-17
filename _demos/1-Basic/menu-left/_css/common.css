@@ -1,0 +1,49 @@
+body {
+}
+
+.content {
+	float: left;
+}
+
+.content p {
+	margin: 30px;
+	font-size: 200%;
+}
+
+.button {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 50px;
+	height: 50px;
+	background: #aaa;
+}
+
+.menu {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	background: #ddd;
+	z-index: 10;
+}
+
+.menu h2 {
+	margin: 15px;
+	font-size: 200%;
+}
+
+.menu ul {
+	margin: 15px 0;
+	font-size: 120%;
+	font-weight: bold;
+	border-top: 1px solid #505050;
+	border-bottom: 1px solid #eee;
+}
+
+.menu ul li {
+	padding: 0 15px;
+	border-top: 1px solid #eee;
+	border-bottom: 1px solid #505050;
+	line-height: 40px;
+	display: block;
+}

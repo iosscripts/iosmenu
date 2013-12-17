@@ -13,11 +13,26 @@
 		<link rel = "stylesheet" media = "screen" href = "_css/common.css" />
 		
 		<!-- JS -->
-		<script type="text/javascript" src = "../../_lib/jquery-1.4.min.js"></script>
-		<script type="text/javascript" src = "../../_src/jquery.iosmenu.js"></script>
-		<script type="text/javascript" src = "_js/common.js"></script>
+		<script type="text/javascript" src = "../../../_lib/jquery-1.4.min.js"></script>
+		<script type="text/javascript" src = "../../../_src/jquery.iosmenu.js"></script>
 		
-		<title>Demo</title>
+		<title>Demo - Basic - Menu Left</title>
+		
+		<script type = 'text/javascript'>
+			$(document).ready(function() {
+				
+				$('.menu').iosMenu({
+					menu_location: 'left'
+				});
+				
+				$('.button').bind('click', function() {
+				
+					$('.menu').iosMenu('toggle');	
+				
+				});
+				
+			});
+		</script>	
 		
 	</head>
 	
