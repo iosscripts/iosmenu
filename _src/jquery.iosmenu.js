@@ -7,7 +7,7 @@
  * 
  * Copyright (c) 2013 Marc Whitbread
  * 
- * Version: v0.1.13 (12/18/2013)
+ * Version: v0.1.14 (12/18/2013)
  * Minimum requirements: jQuery v1.4+
  *
  * Advanced requirements:
@@ -59,6 +59,7 @@
 		menu_count: -1
 	}
 	
+	/* default settings */
 	var default_settings = {
 		obj: '',
 		bg_obj: '',
@@ -121,7 +122,7 @@
 		fixed_nav_selection: ''
 	}
 	
-	/* private functions */
+	/* private methods */
 	var helpers = {
 		
 		init_globals: function() {
@@ -376,7 +377,7 @@
 			
 		},
 		
-		toggle_menu: function(settings, dir) {
+		animate_menu: function(settings, dir) {
 			
 			var steps = settings.anim.fps/settings.anim.duration;
 			var timer_step = settings.anim.duration/steps;
@@ -404,14 +405,14 @@
 		animate_menu_timer: function(time, left, settings) {
 			
 			settings.anim.menu_timeouts[settings.anim.menu_timeouts.length] = setTimeout(function() {
-				settings = helpers.animate_menu(left, settings);
+				settings = helpers.animate_menu_step(left, settings);
 			}, time);
 			
 			return settings;
 			
 		},
 		
-		animate_menu: function(left, settings) {
+		animate_menu_step: function(left, settings) {
 			
 			settings.state.open = (left == settings.resp.offset_left_cl) ? false : true;
 			
@@ -425,8 +426,10 @@
     
     helpers.set_browser_info();
     
+    /* public methods */
     var methods = {
 		
+		/* initialize the menu */
 		init: function(options, node) {
 			
 			if(node == undefined) node = this;
@@ -444,12 +447,7 @@
 			settings = helpers.set_resp_settings(settings);
 			helpers.set_resp_css(settings);
 			
-			/* resize event */
-			$(window).bind(globals.browser.orientation_event + '.iosmenu-' + settings.menu_number, function() {
-				methods.update(settings.obj);
-			});
-			
-			/* touch events */
+			//touch/click event data
 			var x_pull = {
 				event: 0,
 				rate: 0,
@@ -468,17 +466,18 @@
 				start_position: undefined
 			}
 			
-			var start_flag = false;
+			var event_start_flag = false;
 			var is_mouse_down = false;
 			
-			/* touch/move start */
+			//touchstart/mousedown event binding
 			$(window).bind('touchstart.iosmenu-' + settings.menu_number + ', mousedown.iosmenu-' + settings.menu_number, function(e) {
 				
-				if(start_flag) return true;
-				start_flag = true;
-								
+				if(event_start_flag) return true;
+				event_start_flag = true;
+				
 				if((!globals.browser.is_ie7) && (!globals.browser.is_ie8)) e = e.originalEvent;
 				
+				//if event originated from touch
 				if(e.type == 'touchstart') {
 							
 					x_pull.event = e.touches[0].pageX;
@@ -525,7 +524,7 @@
 			
 			});
 			
-			/* touch move */
+			//touchmove/mousemove event binding
 			$(window).bind('touchmove.iosmenu-' + settings.menu_number + ', mousemove.iosmenu-' + settings.menu_number, function(e) {
 				
 				if((!globals.browser.is_ie7) && (!globals.browser.is_ie8)) e = e.originalEvent;
@@ -535,8 +534,8 @@
 				var menu_offset = helpers.get_position(settings);
 				
 				//if event originated from touch
-				if(e.type == 'touchstart') {
-							
+				if(e.type == 'touchmove') {
+					
 					x_pull.event = e.touches[0].pageX;
 					y_pull.event = e.touches[0].pageY;
 					
@@ -571,23 +570,23 @@
 				y_pull.rate[1] = y_pull.event;
 				y_pull.distance = (y_pull.rate[0] - y_pull.rate[1]) / 2;
 				
-				//if open, prevent browser scrolling
+				//menu open, prevent browser scrolling
 				if(settings.state.open)
 					e.preventDefault();
 				
-				//if touch did not originate from within touch threshold
-				if((((x_pull.event > settings.resp.pull_threshold) && (settings.menu_location == 'left')) || ((x_pull.event < settings.resp.pull_threshold) && (settings.menu_location != 'left'))) && !x_pull.started)
+				//touch did not originate from within touch threshold
+				if((((x_pull.event > settings.resp.pull_threshold) && (settings.menu_location == 'left')) || ((x_pull.event < settings.resp.pull_threshold) && (settings.menu_location != 'left'))) && !x_pull.started && !settings.state.open)
 					return true;	
 				
-				//if vertical velocity is hit before horizontal
+				//vertical velocity is hit before horizontal
 				if(((y_pull.distance > settings.touch.v_pull_threshold) || (y_pull.distance < (settings.touch.v_pull_threshold * -1))) && !x_pull.started)
 					y_pull.started = true;
 				
-				//if horizontal velocity his hit before vertical
+				//horizontal velocity is hit before vertical
 				if((x_pull.distance < settings.touch.h_pull_threshold) || (x_pull.distance > (settings.touch.h_pull_threshold * -1)))
 					e.preventDefault();
 				
-				//???
+				//horizontal movement is starting
 				if(((x_pull.distance < settings.touch.start_threshold) || (x_pull.distance > (settings.touch.start_threshold * -1))) && !y_pull.started && !x_pull.started) {
 					x_pull.start_position = (menu_offset - x_pull.event) * -1;
 					x_pull.started = true;
@@ -601,11 +600,12 @@
 					
 					var new_position = (x_pull.start_position - x_pull.event) * -1;
 					
-					//
+					//greater than max menu position
 					if(((settings.menu_location == 'left') && (new_position > settings.resp.offset_left_op)) || ((settings.menu_location != 'left') && (new_position < settings.resp.offset_left_op))) {
 						new_position = settings.resp.offset_left_op;
 					}
 					
+					//less than min menu position
 					if(((settings.menu_location == 'left') && (new_position < settings.resp.offset_left_cl)) || ((settings.menu_location != 'left') && (new_position > settings.resp.offset_left_cl))) {
 						new_position = settings.resp.offset_left_cl;
 					}
@@ -616,7 +616,7 @@
 			
 			});
 			
-			/* touch end */
+			//touchend/mouseup event binding
 			$(window).bind('touchend.iosmenu-' + settings.menu_number + ', mouseup.iosmenu-' + settings.menu_number, function(e) {
 				
 				//???
@@ -629,13 +629,18 @@
 					x_pull.direction = helpers.snap_direction(settings, x_pull);
 				}
 				
-				settings = helpers.toggle_menu(settings, x_pull.direction);
+				settings = helpers.animate_menu(settings, x_pull.direction);
 				helpers.update_data(settings);
 				
-				start_flag = false;
+				event_start_flag = false;
 				is_mouse_down = false;
 				x_pull.started = false;
 				
+			});
+			
+			//orientationchange/resize event binding
+			$(window).bind(globals.browser.orientation_event + '.iosmenu-' + settings.menu_number, function() {
+				methods.update(settings.obj);
 			});
 			
 			helpers.update_data(settings);
@@ -657,7 +662,7 @@
 		
 		},
 		
-		/* reinitialize the menu */
+		/* recalibrate the menu */
 		update: function(node) {
 			
 			if(node == undefined) node = this;
@@ -683,7 +688,7 @@
 			if(data == undefined) return false;
 			
 			var direction = (data.settings.state.open) ? -1 : 1;
-			helpers.toggle_menu(data.settings, direction);
+			helpers.animate_menu(data.settings, direction);
 			
 		},
 		
@@ -697,7 +702,7 @@
 			
 			if(data == undefined) return false;
 			
-			helpers.toggle_menu(data.settings, 1);
+			helpers.animate_menu(data.settings, 1);
 			
 		},
 		
@@ -711,13 +716,13 @@
 			
 			if(data == undefined) return false;
 			
-			helpers.toggle_menu(data.settings, -1);
+			helpers.animate_menu(data.settings, -1);
 			
 		}
 	
 	}
 	
-	/* public functions */
+	/* public method switcher */
 	$.fn.iosMenu = function(method) {
 
 		if(methods[method]) {
