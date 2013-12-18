@@ -7,7 +7,7 @@
  * 
  * Copyright (c) 2013 Marc Whitbread
  * 
- * Version: v0.1.11 (12/17/2013)
+ * Version: v0.1.12 (12/18/2013)
  * Minimum requirements: jQuery v1.4+
  *
  * Advanced requirements:
@@ -97,6 +97,7 @@
 		css: {
 			position: 'fixed',
 			top: 0,
+			left: 0,
 			bottom: 0,
 			width: '80%',
 			maxWidth: '300px',
@@ -144,12 +145,6 @@
 		
 		init_css: function(settings) {
 			
-			if(settings.menu_location == 'left') {
-				$(settings.obj).css('right', '100%');
-			} else {
-				$(settings.obj).css('left', '100%');
-			}
-			
 			$(settings.obj).css(settings.css).css({
 				opacity: 0,
 				zIndex: -1000,
@@ -192,7 +187,7 @@
 				settings.resp.pull_threshold_px = settings.touch.pull_threshold_max_px;
 			}
 			
-			settings.resp.pull_threshold = (settings.menu_location == 'right') ? globals.browser.window_w - settings.resp.pull_threshold_px : settings.resp.pull_threshold_px;
+			settings.resp.pull_threshold = (settings.menu_location == 'left') ? settings.resp.pull_threshold_px : globals.browser.window_w - settings.resp.pull_threshold_px;
 			
 			return settings;
 			
@@ -280,11 +275,11 @@
 				
 				for(var i = 0; i < transforms.length; i++) {
 					
-					if($(settings.obj).css(transforms[i]) != undefined) {
+					if($('body').css(transforms[i]) != undefined) {
 						
-						if($(settings.obj).css(transforms[i]).length > 0) {
+						if($('body').css(transforms[i]).length > 0) {
 						
-							transformArray = $(settings.obj).css(transforms[i]).split(',');
+							transformArray = $('body').css(transforms[i]).split(',');
 							
 							break;
 							
@@ -298,7 +293,7 @@
 		
 			} else {
 			
-				offset = parseInt($(settings.obj).css('left'), 10);
+				offset = parseInt($('body').css('left'), 10);
 			
 			}*/
 			
@@ -313,6 +308,7 @@
 			var opacity = (left == settings.resp.offset_left_cl) ? 0 : 1;
 			var display = (left == settings.resp.offset_left_cl) ? 'none' : 'block';
 			var perc = ((left - settings.resp.offset_left_op) / (settings.resp.offset_left_cl - settings.resp.offset_left_op) * -settings.bg_css.opacity) + settings.bg_css.opacity;
+			var menu_left = (settings.menu_location == 'left') ? left - settings.resp.menu_w : globals.browser.window_w + left;
 			
 			if(!globals.browser.has_3d_transform || true) {
 				
@@ -320,16 +316,8 @@
 					'left': left + 'px'
 				});
 				
-				if(settings.menu_location == 'left') {
-					$(settings.obj).css('right', globals.browser.window_w - left + 'px');
-				} else {
-					$(settings.obj).css('left', globals.browser.window_w + left + 'px');
-				}
-				
-				$(settings.obj).css({
-					'opacity': opacity
-				});
-				
+				$(settings.obj).css('left', menu_left + 'px');
+			
 			} else {
 				
 				$('body').add(settings.fixed_nav_selection).css({
@@ -338,8 +326,18 @@
 					'transform': 'matrix(1,0,0,1,' + left + ',0)'
 				});
 				
+				$(settings.obj).css({
+					'webkitTransform': 'matrix(1,0,0,1,' + menu_left + ',0)',
+					'MozTransform': 'matrix(1,0,0,1,' + menu_left + ',0)',
+					'transform': 'matrix(1,0,0,1,' + menu_left + ',0)'
+				});
+				
 			}
 			
+			$(settings.obj).css({
+				'opacity': opacity
+			});
+				
 			settings.bg_obj.css({
 				'opacity': perc,
 				'display': display
@@ -352,15 +350,15 @@
 			var snap_dir = 0;
 			
 			if(x_pull.distance > settings.touch.snap_threshold) {
-				snap_dir = 1;
+				snap_dir = (settings.menu_location == 'left') ? -1 : 1;
 			} else if(x_pull.distance < (settings.touch.snap_threshold * -1)) {
-				snap_dir = -1;
+				snap_dir = (settings.menu_location == 'left') ? 1 : -1;
 			}
 			
 			if((snap_dir == 0) && (helpers.get_position(settings) <= settings.resp.offset_left_mi)) {
-				snap_dir = 1;
+				snap_dir = (settings.menu_location == 'left') ? -1 : 1;
 			} else if((snap_dir == 0) && (helpers.get_position(settings) > settings.resp.offset_left_mi)) {
-				snap_dir = -1;
+				snap_dir = (settings.menu_location == 'left') ? 1 : -1;
 			}
 			
 			return snap_dir;
@@ -525,6 +523,7 @@
 				
 				var menu_offset = helpers.get_position(settings);
 				
+				//if event originated from touch
 				if(e.type == 'touchstart') {
 							
 					x_pull.event = e.touches[0].pageX;
@@ -561,32 +560,43 @@
 				y_pull.rate[1] = y_pull.event;
 				y_pull.distance = (y_pull.rate[0] - y_pull.rate[1]) / 2;
 				
+				//if open, prevent browser scrolling
 				if(settings.state.open)
 					e.preventDefault();
-						
-				if((x_pull.event > menu_offset) && (x_pull.event < settings.resp.pull_threshold) && !x_pull.started)
-					return true;
 				
+				//if touch did not originate from within touch threshold
+				if((((x_pull.event > settings.resp.pull_threshold) && (settings.menu_location == 'left')) || ((x_pull.event < settings.resp.pull_threshold) && (settings.menu_location != 'left'))) && !x_pull.started)
+					return true;	
+				
+				//if vertical velocity is hit before horizontal
 				if(((y_pull.distance > settings.touch.v_pull_threshold) || (y_pull.distance < (settings.touch.v_pull_threshold * -1))) && !x_pull.started)
 					y_pull.started = true;
 				
+				//if horizontal velocity his hit before vertical
 				if((x_pull.distance < settings.touch.h_pull_threshold) || (x_pull.distance > (settings.touch.h_pull_threshold * -1)))
 					e.preventDefault();
 				
+				//???
 				if(((x_pull.distance < settings.touch.start_threshold) || (x_pull.distance > (settings.touch.start_threshold * -1))) && !y_pull.started && !x_pull.started) {
 					x_pull.start_position = (menu_offset - x_pull.event) * -1;
 					x_pull.started = true;
 				}
 				
+				//if horizontal movement has started and vertical has not
 				if(!y_pull.started && x_pull.started) {
-					
+
 					settings.state.open = true;
 					helpers.clear_animate_timer(settings);
 					
 					var new_position = (x_pull.start_position - x_pull.event) * -1;
 					
-					if((settings.menu_location == 'right') && (((x_pull.start_position - x_pull.event) * -1) < settings.resp.offset_left_op)) {
+					//
+					if(((settings.menu_location == 'left') && (new_position > settings.resp.offset_left_op)) || ((settings.menu_location != 'left') && (new_position < settings.resp.offset_left_op))) {
 						new_position = settings.resp.offset_left_op;
+					}
+					
+					if(((settings.menu_location == 'left') && (new_position < settings.resp.offset_left_cl)) || ((settings.menu_location != 'left') && (new_position > settings.resp.offset_left_cl))) {
+						new_position = settings.resp.offset_left_cl;
 					}
 					
 					helpers.set_position(settings, new_position);
@@ -598,15 +608,22 @@
 			/* touch end */
 			$(window).bind('touchend.iosmenu-' + settings.menu_number + ', mouseup.iosmenu-' + settings.menu_number, function(e) {
 				
+				//???
 				if(settings.state.flags.pull_threshold) return true;
-	
-				x_pull.direction = (x_pull.event > helpers.get_position(settings) && !x_pull.started) ? -1 : helpers.snap_direction(settings, x_pull);
+				
+				//close if click is detected outside menu
+				if((((settings.menu_location == 'left') && (x_pull.event > helpers.get_position(settings))) || ((settings.menu_location != 'left') && (x_pull.event < (helpers.get_position(settings) + globals.browser.window_w)))) && !x_pull.started) {
+					x_pull.direction = -1;
+				} else {
+					x_pull.direction = helpers.snap_direction(settings, x_pull);
+				}
 				
 				settings = helpers.toggle_menu(settings, x_pull.direction);
 				helpers.update_data(settings);
 				
 				start_flag = false;
 				is_mouse_down = false;
+				x_pull.started = false;
 				
 			});
 			
@@ -636,7 +653,7 @@
 			
 			var node = $(node).eq(0);
 			var data = $(node).data('iosmenu');
-			console.log('a');
+
 			if(data == undefined) return false;
 
 			settings = helpers.set_resp_settings(data.settings);
