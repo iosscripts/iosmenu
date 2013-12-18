@@ -7,7 +7,7 @@
  * 
  * Copyright (c) 2013 Marc Whitbread
  * 
- * Version: v0.1.12 (12/18/2013)
+ * Version: v0.1.13 (12/18/2013)
  * Minimum requirements: jQuery v1.4+
  *
  * Advanced requirements:
@@ -268,7 +268,8 @@
 		
 			var offset = 0;
 			
-			/*if(globals.browser.has_3d_transform && !globals.browser.is_ie7 && !globals.browser.is_ie8) {
+			//disable due to browser limitiation preventing transform on body element
+			if(globals.browser.has_3d_transform && !globals.browser.is_ie7 && !globals.browser.is_ie8 && false) {
 				
 				var transforms = new Array('-webkit-transform', '-moz-transform', 'transform');
 				var transformArray;
@@ -295,7 +296,7 @@
 			
 				offset = parseInt($('body').css('left'), 10);
 			
-			}*/
+			}
 			
 			offset = parseInt($('body').css('left'), 10);
 			
@@ -310,29 +311,36 @@
 			var perc = ((left - settings.resp.offset_left_op) / (settings.resp.offset_left_cl - settings.resp.offset_left_op) * -settings.bg_css.opacity) + settings.bg_css.opacity;
 			var menu_left = (settings.menu_location == 'left') ? left - settings.resp.menu_w : globals.browser.window_w + left;
 			
-			if(!globals.browser.has_3d_transform || true) {
+			//if browser can transform
+			if(globals.browser.has_3d_transform) {
 				
-				$('body').add(settings.fixed_nav_selection).css({
-					'left': left + 'px'
-				});
-				
-				$(settings.obj).css('left', menu_left + 'px');
-			
-			} else {
-				
-				$('body').add(settings.fixed_nav_selection).css({
+				//disable due to browser limitiation preventing transform on body element
+				/*$('body').add(settings.fixed_nav_selection).css({
 					'webkitTransform': 'matrix(1,0,0,1,' + left + ',0)',
 					'MozTransform': 'matrix(1,0,0,1,' + left + ',0)',
 					'transform': 'matrix(1,0,0,1,' + left + ',0)'
-				});
+				});*/
 				
 				$(settings.obj).css({
 					'webkitTransform': 'matrix(1,0,0,1,' + menu_left + ',0)',
 					'MozTransform': 'matrix(1,0,0,1,' + menu_left + ',0)',
 					'transform': 'matrix(1,0,0,1,' + menu_left + ',0)'
 				});
+			
+			} else {
+				
+				//disable due to browser limitiation preventing transform on body element
+				/*$('body').add(settings.fixed_nav_selection).css({
+					'left': left + 'px'
+				});*/
+				
+				$(settings.obj).css('left', menu_left + 'px');
 				
 			}
+			
+			$('body').add(settings.fixed_nav_selection).css({
+				'left': left + 'px'
+			});
 			
 			$(settings.obj).css({
 				'opacity': opacity
@@ -350,16 +358,19 @@
 			var snap_dir = 0;
 			
 			if(x_pull.distance > settings.touch.snap_threshold) {
-				snap_dir = (settings.menu_location == 'left') ? -1 : 1;
+				snap_dir = 1;
 			} else if(x_pull.distance < (settings.touch.snap_threshold * -1)) {
-				snap_dir = (settings.menu_location == 'left') ? 1 : -1;
+				snap_dir = -1;
 			}
 			
 			if((snap_dir == 0) && (helpers.get_position(settings) <= settings.resp.offset_left_mi)) {
-				snap_dir = (settings.menu_location == 'left') ? -1 : 1;
+				snap_dir = 1;
 			} else if((snap_dir == 0) && (helpers.get_position(settings) > settings.resp.offset_left_mi)) {
-				snap_dir = (settings.menu_location == 'left') ? 1 : -1;
+				snap_dir = -1;
 			}
+			
+			if(settings.menu_location == 'left') 
+				snap_dir = -snap_dir;
 			
 			return snap_dir;
 			
