@@ -7,7 +7,7 @@
  * 
  * Copyright (c) 2013 Marc Whitbread
  * 
- * Version: v0.1.15 (12/18/2013)
+ * Version: v0.1.16 (12/19/2013)
  * Minimum requirements: jQuery v1.4+
  *
  * Advanced requirements:
@@ -291,15 +291,13 @@
 				
 				}
 				
-				offset = (transformArray[4] == undefined) ? 0 : parseInt(transformArray[4], 10);
+				offset = (transformArray[4] == undefined) ? 0 : parseInt(transformArray[4], 10) / settings.parallax_ratio;
 		
 			} else {
 			
-				offset = parseInt($('body').css('left'), 10);
+				offset = parseInt($('body').css('left'), 10) / settings.parallax_ratio;
 			
 			}
-			
-			offset = parseInt($('body').css('left'), 10);
 			
 			return offset;
 			
