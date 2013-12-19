@@ -7,7 +7,7 @@
  * 
  * Copyright (c) 2013 Marc Whitbread
  * 
- * Version: v0.1.14 (12/18/2013)
+ * Version: v0.1.15 (12/18/2013)
  * Minimum requirements: jQuery v1.4+
  *
  * Advanced requirements:
@@ -117,9 +117,9 @@
 			opacity: 0.75,
 			zIndex: 999	
 		},
-		menu_location: 'right',
 		menu_number: 0,
-		fixed_nav_selection: ''
+		menu_location: 'right',
+		parallax_ratio: 1
 	}
 	
 	/* private methods */
@@ -311,6 +311,7 @@
 			var display = (left == settings.resp.offset_left_cl) ? 'none' : 'block';
 			var perc = ((left - settings.resp.offset_left_op) / (settings.resp.offset_left_cl - settings.resp.offset_left_op) * -settings.bg_css.opacity) + settings.bg_css.opacity;
 			var menu_left = (settings.menu_location == 'left') ? left - settings.resp.menu_w : globals.browser.window_w + left;
+			var left = left * settings.parallax_ratio;
 			
 			//if browser can transform
 			if(globals.browser.has_3d_transform) {
