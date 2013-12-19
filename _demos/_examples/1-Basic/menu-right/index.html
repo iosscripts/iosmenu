@@ -13,17 +13,15 @@
 		<link rel = "stylesheet" media = "screen" href = "_css/common.css" />
 		
 		<!-- JS -->
-		<script type="text/javascript" src = "../../../_lib/jquery-1.4.min.js"></script>
-		<script type="text/javascript" src = "../../../_src/jquery.iosmenu.js"></script>
+		<script type="text/javascript" src = "../../../../_lib/jquery-1.4.min.js"></script>
+		<script type="text/javascript" src = "../../../../_src/jquery.iosmenu.js"></script>
 		
-		<title>Demo - Basic - Menu Left</title>
+		<title>Demo - Basic - Menu Right</title>
 		
 		<script type = 'text/javascript'>
 			$(document).ready(function() {
 				
-				$('.menu').iosMenu({
-					menu_location: 'left'
-				});
+				$('.menu').iosMenu();
 				
 				$('.button').bind('click', function() {
 				
@@ -32,7 +30,7 @@
 				});
 				
 			});
-		</script>	
+		</script>
 		
 	</head>
 	
@@ -64,7 +62,7 @@
 		
 		<div class = 'menu'>
 			
-			<h2>Fly out menu</h2>
+			<h2>Menu</h2>
 			
 			<ul>
 				<li>Menu item #1</li>

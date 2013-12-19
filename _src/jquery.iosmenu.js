@@ -7,7 +7,7 @@
  * 
  * Copyright (c) 2013 Marc Whitbread
  * 
- * Version: v0.1.16 (12/19/2013)
+ * Version: v0.1.17 (12/19/2013)
  * Minimum requirements: jQuery v1.4+
  *
  * Advanced requirements:
@@ -63,6 +63,7 @@
 	var default_settings = {
 		obj: '',
 		bg_obj: '',
+		menu_number: 0,
 		resp: {
 			menu_w: 0,
 			menu_h: 0,
@@ -95,7 +96,7 @@
 		body_css: {
 			position: 'relative'
 		},
-		css: {
+		menu_css: {
 			position: 'fixed',
 			top: 0,
 			left: 0,
@@ -105,7 +106,7 @@
 			minWidth: '100px',
 			zIndex: 1000,
 			display: 'block',
-			opacity: 1,
+			opacity: 1
 		},
 		bg_css: {
 			position: 'fixed',
@@ -117,9 +118,10 @@
 			opacity: 0.75,
 			zIndex: 999	
 		},
-		menu_number: 0,
 		menu_location: 'right',
-		parallax_ratio: 1
+		parallax_ratio: 1,
+		menu_toggle_button_selector: '',
+		move_with_menu_selector: ''
 	}
 	
 	/* private methods */
@@ -146,7 +148,7 @@
 		
 		init_css: function(settings) {
 			
-			$(settings.obj).css(settings.css).css({
+			$(settings.obj).css(settings.menu_css).css({
 				opacity: 0,
 				zIndex: -1000,
 				display: 'none'
@@ -196,7 +198,7 @@
 		
 		set_resp_css: function(settings) {
 			
-			$(settings.obj).css(settings.css).css({
+			$(settings.obj).css(settings.menu_css).css({
 				width: settings.resp.menu_w + 'px'
 			});
 			
@@ -309,6 +311,7 @@
 			var display = (left == settings.resp.offset_left_cl) ? 'none' : 'block';
 			var perc = ((left - settings.resp.offset_left_op) / (settings.resp.offset_left_cl - settings.resp.offset_left_op) * -settings.bg_css.opacity) + settings.bg_css.opacity;
 			var menu_left = (settings.menu_location == 'left') ? left - settings.resp.menu_w : globals.browser.window_w + left;
+			var selection_left = left;
 			var left = left * settings.parallax_ratio;
 			
 			//if browser can transform
@@ -326,6 +329,12 @@
 					'MozTransform': 'matrix(1,0,0,1,' + menu_left + ',0)',
 					'transform': 'matrix(1,0,0,1,' + menu_left + ',0)'
 				});
+				
+				$(settings.move_with_menu_selector).css({
+					'webkitTransform': 'matrix(1,0,0,1,' + selection_left + ',0)',
+					'MozTransform': 'matrix(1,0,0,1,' + selection_left + ',0)',
+					'transform': 'matrix(1,0,0,1,' + selection_left + ',0)'
+				});
 			
 			} else {
 				
@@ -336,9 +345,11 @@
 				
 				$(settings.obj).css('left', menu_left + 'px');
 				
+				$(settings.move_with_menu_selector).css('left', selection_left + 'px');
+				
 			}
 			
-			$('body').add(settings.fixed_nav_selection).css({
+			$('body').css({
 				'left': left + 'px'
 			});
 			
@@ -467,6 +478,12 @@
 			
 			var event_start_flag = false;
 			var is_mouse_down = false;
+			
+			//selector event bindings 
+			$(settings.menu_toggle_button_selector).css('cursor', 'pointer');
+			$(settings.menu_toggle_button_selector).bind('click', function(e) {
+				methods.toggle(settings.obj);
+			});
 			
 			//touchstart/mousedown event binding
 			$(window).bind('touchstart.iosmenu-' + settings.menu_number + ', mousedown.iosmenu-' + settings.menu_number, function(e) {
