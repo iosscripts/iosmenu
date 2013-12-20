@@ -1,0 +1,86 @@
+body {
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+.content {
+	float: left;
+	margin: 49px 0 0 0;
+}
+
+.content h2 {
+	margin: 30px;
+	font-size: 180%;
+	line-height: 30px;
+}
+
+.content p {
+	margin: 30px;
+	font-size: 160%;
+}
+
+.content p#callback-diagnistics {
+	border: 1px solid #333;
+	background: #999;
+	color: #fff;
+	padding: 30px;
+	font-size: 120%;
+	line-height: 120%;
+	
+	font-family: courier;
+}
+
+.header {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 49px;
+	background: #ddd;
+}
+
+.header h1 {
+	font-weight: bold;
+	font-size: 180%;
+	line-height: 49px;
+	color: #333;
+	margin: 0 0 0 30px;
+}
+
+.header .button {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 49px;
+	height: 49px;
+	background: #aaa url(../../../../_resources/menu-icon.png) no-repeat 50% 50%;
+}
+
+.menu {
+	background: #333;
+	box-shadow: 0 0px 10px #000;
+	
+	width: 40%;
+	max-width: 400px;
+	min-width: 200px;
+}
+
+.menu h2 {
+	margin: 15px;
+	font-size: 200%;
+}
+
+.menu ul {
+	margin: 15px 0;
+	font-size: 120%;
+	border-top: 1px solid #000;
+	border-bottom: 1px solid #666;
+}
+
+.menu ul li {
+	padding: 0 15px;
+	border-top: 1px solid #666;
+	border-bottom: 1px solid #000;
+	line-height: 40px;
+	display: block;
+	color: #fff;
+}

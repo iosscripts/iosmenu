@@ -7,7 +7,7 @@
  * 
  * Copyright (c) 2013 Marc Whitbread
  * 
- * Version: v0.1.19 (12/20/2013)
+ * Version: v0.1.20 (12/20/2013)
  * Minimum requirements: jQuery v1.4+
  *
  * Advanced requirements:
@@ -90,7 +90,9 @@
 		state: {
 			open: false,
 			flags: {
-				pull_threshold: false
+				pull_threshold: false,
+				event_start: false,
+				mouse_down: false
 			}
 		},
 		body_css: {
@@ -118,13 +120,20 @@
 		menu_location: 'right',
 		parallax_ratio: 1,
 		menu_toggle_button_selector: '',
-		move_with_menu_selector: ''
+		move_with_menu_selector: '',
+		callback: {
+			loaded: '',
+			resize: '',
+			update: '',
+			start: '',
+			complete: ''
+		}
 	}
 	
 	/* private methods */
 	var helpers = {
 		
-		//initialize global variables
+		/* initialize global variables */
 		init_globals: function() {
 		
 			globals.browser.orientation_event = globals.browser.orientation_change ? 'orientationchange' : 'resize';
@@ -133,7 +142,7 @@
 			
 		},
 		
-		//initialize settings
+		/* initialize settings */
 		init_settings: function(custom_settings) {
 			
 			globals.menu_count++;
@@ -145,7 +154,7 @@
 		
 		},
 		
-		//initialize required css on elements
+		/* initialize required css on elements */
 		init_css: function(settings) {
 			
 			$(settings.obj).css(settings.menu_css).css({
@@ -170,7 +179,7 @@
 			
 		},
 		
-		//calculate position and size of elements responsively
+		/* calculate position and size of elements responsively */
 		set_resp_settings: function(settings) {
 			
 			globals.browser.window_w = $(window).width();
@@ -198,7 +207,7 @@
 			
 		},
 		
-		//set position and size of elements responsively
+		/* set position and size of elements responsively */
 		set_resp_css: function(settings) {
 			
 			$(settings.obj).css(settings.menu_css).css({
@@ -210,7 +219,7 @@
 			
 		},
 		
-		//set browser information
+		/* set browser information */
 		set_browser_info: function() {
 			
 			if(navigator.userAgent.match('WebKit') != null) {
@@ -234,7 +243,7 @@
 			
 		},
 		
-		//check if browser supports 3d transformations
+		/* check if browser supports 3d transformations */
 		has_3d_transform: function() {
 			
 			var has_3d = false;
@@ -255,7 +264,7 @@
 			
 		},
 		
-		//update jQuery.data() object for the menu
+		/* update jQuery.data() object for the menu */
 		update_data: function(settings) {
 			
 			$(settings.obj).data('iosmenu', {
@@ -264,12 +273,12 @@
 			
 		},
 		
-		//get the current slide position
+		/* get the current menu position */
 		get_position: function(settings) {
 		
 			var offset = 0;
 			
-			//disable due to browser limitiation preventing transform on body element
+			//disabled due to browser limitiation preventing transform on body element
 			if(globals.browser.has_3d_transform && !globals.browser.is_ie7 && !globals.browser.is_ie8 && false) {
 				
 				var transforms = new Array('-webkit-transform', '-moz-transform', 'transform');
@@ -303,7 +312,7 @@
 			
 		},
 		
-		//set the slide position
+		/* set the menu position */
 		set_position: function(settings, left) {
 			
 			var opacity = (left == settings.resp.offset_left_cl) ? 0 : 1;
@@ -363,7 +372,7 @@
 			
 		},
 		
-		//calculate snap direction
+		/* calculate snap direction */
 		snap_direction: function(settings, x_pull) {
 	
 			var snap_dir = 0;
@@ -387,7 +396,7 @@
 			
 		},
 		
-		//animation builder
+		/* animation builder */
 		animate_menu: function(settings, dir) {
 			
 			var steps = settings.anim.fps/settings.anim.duration;
@@ -403,39 +412,43 @@
 				var pow = Math.pow(t,5) + 1;
 				var left = Math.round(offset_left_1 - (offset_left_1 - offset_left_2) * pow);
 				
-				settings = helpers.animate_menu_timer(i*timer_step, left, settings);
+				settings = helpers.animate_menu_timer(i*timer_step, left, false, settings);
 				
 			}
 			
-			settings = helpers.animate_menu_timer((steps+1)*timer_step, offset_left_2, settings);
+			settings = helpers.animate_menu_timer((steps+1)*timer_step, offset_left_2, true, settings);
 			
 			return settings;
 			
 		},
 		
-		//animation frame queuing function
-		animate_menu_timer: function(time, left, settings) {
+		/* animation frame queuing function */
+		animate_menu_timer: function(time, left, is_last_frame, settings) {
 			
 			settings.anim.menu_timeouts[settings.anim.menu_timeouts.length] = setTimeout(function() {
-				settings = helpers.animate_menu_step(left, settings);
+				settings = helpers.animate_menu_step(left, is_last_frame, settings);
 			}, time);
 			
 			return settings;
 			
 		},
 		
-		//animation frame step
-		animate_menu_step: function(left, settings) {
+		/* animation frame step */
+		animate_menu_step: function(left, is_last_frame, settings) {
 			
 			settings.state.open = (left == settings.resp.offset_left_cl) ? false : true;
 			
 			helpers.set_position(settings, left);
 			
+			if(is_last_frame)
+				if(settings.callback.complete != '')
+					settings.callback.complete(settings);
+			
 			return settings;
 			
 		},
 		
-		//clear all animation frames from the queue
+		/* clear all animation frames from the queue */
 		animate_menu_timer_clear: function(settings) {
 		
 			for(var i = 0; i < settings.anim.menu_timeouts.length; i++) {
@@ -445,7 +458,7 @@
 			
 		},
 		
-		//unselect/remove highlighting from all elements when dragging
+		/* unselect/remove highlighting from all elements when dragging */
 		deselect_elements: function() {
 				
 			if (window.getSelection) {
@@ -491,6 +504,9 @@
 			settings = helpers.set_resp_settings(settings);
 			helpers.set_resp_css(settings);
 			
+			if(settings.callback.loaded != '')
+				settings.callback.loaded(settings);
+				
 			//touch/click event data
 			var x_pull = {
 				event: 0,
@@ -510,9 +526,6 @@
 				start_position: undefined
 			}
 			
-			var event_start_flag = false;
-			var is_mouse_down = false;
-			
 			//selector event bindings 
 			$(settings.menu_toggle_button_selector).css('cursor', 'pointer');
 			$(settings.menu_toggle_button_selector).bind('click', function(e) {
@@ -522,8 +535,8 @@
 			//touchstart/mousedown event binding
 			$(window).bind('touchstart.iosmenu-' + settings.menu_number + ', mousedown.iosmenu-' + settings.menu_number, function(e) {
 				
-				if(event_start_flag) return true;
-				event_start_flag = true;
+				if(settings.state.flags.event_start) return true;
+				settings.state.flags.event_start = true;
 				
 				if((!globals.browser.is_ie7) && (!globals.browser.is_ie8)) e = e.originalEvent;
 				
@@ -538,7 +551,7 @@
 					x_pull.event = e.pageX;
 					y_pull.event = e.pageY;
 					
-					is_mouse_down = true;
+					settings.state.flags.mouse_down = true;
 
 				}
 				
@@ -577,7 +590,7 @@
 					
 				} else {
 					
-					if(!is_mouse_down) return true;
+					if(!settings.state.flags.mouse_down) return true;
 					
 					x_pull.event = e.pageX;
 					y_pull.event = e.pageY;
@@ -612,6 +625,9 @@
 				if(((x_pull.distance < settings.touch.start_threshold) || (x_pull.distance > (settings.touch.start_threshold * -1))) && !y_pull.started && !x_pull.started) {
 					x_pull.start_position = (menu_offset - x_pull.event) * -1;
 					x_pull.started = true;
+					
+					if(settings.callback.start != '')
+						settings.callback.start(settings);
 				}
 				
 				//if horizontal movement has started and vertical has not
@@ -656,8 +672,8 @@
 				settings = helpers.animate_menu(settings, x_pull.direction);
 				helpers.update_data(settings);
 				
-				event_start_flag = false;
-				is_mouse_down = false;
+				settings.state.flags.event_start = false;
+				settings.state.flags.mouse_down = false;
 				x_pull.started = false;
 				
 			});
@@ -665,6 +681,9 @@
 			//orientationchange/resize event binding
 			$(window).bind(globals.browser.orientation_event + '.iosmenu-' + settings.menu_number, function() {
 				methods.update(settings.obj);
+				
+				if(settings.callback.resize != '')
+					settings.callback.resize(settings);
 			});
 			
 			helpers.update_data(settings);
@@ -698,6 +717,9 @@
 
 			settings = helpers.set_resp_settings(data.settings);
 			helpers.set_resp_css(settings);
+			
+			if(settings.callback.update != '')
+				settings.callback.update(settings);
 		
 		},
 		

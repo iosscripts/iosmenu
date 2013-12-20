@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+    <head>
+    	
+		<!-- META -->
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta name = "viewport" content = "width=device-width, minimum-scale=1, maximum-scale=1">
+		<meta name = "apple-mobile-web-app-capable" content = "yes" /> 
+		
+		<!-- CSS -->
+		<link rel = "stylesheet" media = "screen" href = "_css/default.css" />
+		<link rel = "stylesheet" media = "screen" href = "_css/common.css" />
+		
+		<!-- JS -->
+		<script type="text/javascript" src = "../../../../_lib/jquery-1.4.min.js"></script>
+		<script type="text/javascript" src = "../../../../_src/jquery.iosmenu.js"></script>
+		
+		<title>Demo - Advanced - Using Callbacks</title>
+		
+		<script type = 'text/javascript'>
+			$(document).ready(function() {
+				
+				$('.menu').iosMenu({
+					move_with_menu_selector: '.fixed-class',
+					menu_toggle_button_selector: '.header .button',
+					callback: {
+						loaded: callback_loaded,
+						resize: callback_resize,
+						update: callback_update,
+						start: callback_start,
+						complete: callback_complete,
+					}
+				});
+				
+			});
+			
+			var callback_loaded = function(settings) {
+			
+				$('#callback-diagnistics').append('&gt;&nbsp;Menu loaded...<br />');
+				
+			}
+			
+			var callback_resize = function(settings) {
+			
+				$('#callback-diagnistics').append('&gt;&nbsp;Window resized.<br />');
+				
+			}
+			
+			var callback_update = function(settings) {
+			
+				$('#callback-diagnistics').append('&gt;&nbsp;Menu updated/recalibrated.<br />');
+				
+			}
+			
+			var callback_start = function(settings) {
+				
+				$('#callback-diagnistics').append('&gt;&nbsp;Menu slide start.<br />');
+				
+			}
+			
+			var callback_complete = function(settings) {
+			
+				$('#callback-diagnistics').append('&gt;&nbsp;Menu slide complete.<br />');
+				
+			}
+		</script>
+		
+	</head>
+	
+	<body>
+		
+		<div class = 'header fixed-class'><h1>Using Selectors</h1><div class = 'button'></div></div>
+		
+		<div class = 'content'>
+			
+			<h2>Callback Diagnostics</h2>
+			
+			<p id = 'callback-diagnistics'></p>
+			
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+			
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+			
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+			
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+			
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+			
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+			
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+			
+		</div>
+		
+		<div class = 'menu'>
+			
+			<h2>Fly out menu</h2>
+			
+			<ul>
+				<li>Menu item #1</li>
+				<li>Menu item #2</li>
+				<li>Menu item #3</li>
+				<li>Menu item #4</li>
+				<li>Menu item #5</li>
+				<li>Menu item #6</li>
+			</ul>
+			
+		</div>
+	
+	</body>
+
+</html>
