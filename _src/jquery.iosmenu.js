@@ -7,7 +7,7 @@
  * 
  * Copyright (c) 2013 Marc Whitbread
  * 
- * Version: v0.1.18 (12/19/2013)
+ * Version: v0.1.19 (12/20/2013)
  * Minimum requirements: jQuery v1.4+
  *
  * Advanced requirements:
@@ -124,6 +124,7 @@
 	/* private methods */
 	var helpers = {
 		
+		//initialize global variables
 		init_globals: function() {
 		
 			globals.browser.orientation_event = globals.browser.orientation_change ? 'orientationchange' : 'resize';
@@ -132,6 +133,7 @@
 			
 		},
 		
+		//initialize settings
 		init_settings: function(custom_settings) {
 			
 			globals.menu_count++;
@@ -143,6 +145,7 @@
 		
 		},
 		
+		//initialize required css on elements
 		init_css: function(settings) {
 			
 			$(settings.obj).css(settings.menu_css).css({
@@ -167,6 +170,7 @@
 			
 		},
 		
+		//calculate position and size of elements responsively
 		set_resp_settings: function(settings) {
 			
 			globals.browser.window_w = $(window).width();
@@ -194,6 +198,7 @@
 			
 		},
 		
+		//set position and size of elements responsively
 		set_resp_css: function(settings) {
 			
 			$(settings.obj).css(settings.menu_css).css({
@@ -205,6 +210,7 @@
 			
 		},
 		
+		//set browser information
 		set_browser_info: function() {
 			
 			if(navigator.userAgent.match('WebKit') != null) {
@@ -228,6 +234,7 @@
 			
 		},
 		
+		//check if browser supports 3d transformations
 		has_3d_transform: function() {
 			
 			var has_3d = false;
@@ -248,6 +255,7 @@
 			
 		},
 		
+		//update jQuery.data() object for the menu
 		update_data: function(settings) {
 			
 			$(settings.obj).data('iosmenu', {
@@ -256,15 +264,7 @@
 			
 		},
 		
-		clear_animate_timer: function(settings) {
-		
-			for(var i = 0; i < settings.anim.menu_timeouts.length; i++) {
-				clearTimeout(settings.anim.menu_timeouts[i]);
-				settings.anim.menu_timeouts[i] = undefined;
-			}
-			
-		},
-
+		//get the current slide position
 		get_position: function(settings) {
 		
 			var offset = 0;
@@ -303,6 +303,7 @@
 			
 		},
 		
+		//set the slide position
 		set_position: function(settings, left) {
 			
 			var opacity = (left == settings.resp.offset_left_cl) ? 0 : 1;
@@ -362,6 +363,7 @@
 			
 		},
 		
+		//calculate snap direction
 		snap_direction: function(settings, x_pull) {
 	
 			var snap_dir = 0;
@@ -385,6 +387,7 @@
 			
 		},
 		
+		//animation builder
 		animate_menu: function(settings, dir) {
 			
 			var steps = settings.anim.fps/settings.anim.duration;
@@ -392,7 +395,7 @@
 			var offset_left_1 = helpers.get_position(settings);
 			var offset_left_2 = (dir == 1) ? settings.resp.offset_left_op : settings.resp.offset_left_cl;
 			
-			helpers.clear_animate_timer(settings);
+			helpers.animate_menu_timer_clear(settings);
 			
 			for(var i = 1; i <= steps; i++) {
 				
@@ -410,6 +413,7 @@
 			
 		},
 		
+		//animation frame queuing function
 		animate_menu_timer: function(time, left, settings) {
 			
 			settings.anim.menu_timeouts[settings.anim.menu_timeouts.length] = setTimeout(function() {
@@ -420,6 +424,7 @@
 			
 		},
 		
+		//animation frame step
 		animate_menu_step: function(left, settings) {
 			
 			settings.state.open = (left == settings.resp.offset_left_cl) ? false : true;
@@ -428,6 +433,37 @@
 			
 			return settings;
 			
+		},
+		
+		//clear all animation frames from the queue
+		animate_menu_timer_clear: function(settings) {
+		
+			for(var i = 0; i < settings.anim.menu_timeouts.length; i++) {
+				clearTimeout(settings.anim.menu_timeouts[i]);
+				settings.anim.menu_timeouts[i] = undefined;
+			}
+			
+		},
+		
+		//unselect/remove highlighting from all elements when dragging
+		deselect_elements: function() {
+				
+			if (window.getSelection) {
+				if (window.getSelection().empty) {
+					window.getSelection().empty();
+				} else if (window.getSelection().removeAllRanges) {
+					window.getSelection().removeAllRanges();
+				}
+			} else if (document.selection) {
+				if(globals.browser.is_ie8) {
+					try { document.selection.empty(); } catch(e) { 
+						//absorb ie8 bug 
+					}
+				} else {
+					document.selection.empty();
+				}
+			}
+		
 		}
         
     }
@@ -498,20 +534,6 @@
 					y_pull.event = e.touches[0].pageY;
 					
 				} else {
-				
-					if (window.getSelection) {
-						if (window.getSelection().empty) {
-							window.getSelection().empty();
-						} else if (window.getSelection().removeAllRanges) {
-							window.getSelection().removeAllRanges();
-						}
-					} else if (document.selection) {
-						if(globals.browser.is_ie8) {
-							try { document.selection.empty(); } catch(e) { /* absorb ie8 bug */ }
-						} else {
-							document.selection.empty();
-						}
-					}
 					
 					x_pull.event = e.pageX;
 					y_pull.event = e.pageY;
@@ -557,20 +579,6 @@
 					
 					if(!is_mouse_down) return true;
 					
-					if (window.getSelection) {
-						if (window.getSelection().empty) {
-							window.getSelection().empty();
-						} else if (window.getSelection().removeAllRanges) {
-							window.getSelection().removeAllRanges();
-						}
-					} else if (document.selection) {
-						if(globals.browser.is_ie8) {
-							try { document.selection.empty(); } catch(e) { /* absorb ie8 bug */ }
-						} else {
-							document.selection.empty();
-						}
-					}
-					
 					x_pull.event = e.pageX;
 					y_pull.event = e.pageY;
 
@@ -608,9 +616,11 @@
 				
 				//if horizontal movement has started and vertical has not
 				if(!y_pull.started && x_pull.started) {
-
+					
+					helpers.deselect_elements();
+					
 					settings.state.open = true;
-					helpers.clear_animate_timer(settings);
+					helpers.animate_menu_timer_clear(settings);
 					
 					var new_position = (x_pull.start_position - x_pull.event) * -1;
 					
