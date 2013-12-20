@@ -7,7 +7,7 @@
  * 
  * Copyright (c) 2013 Marc Whitbread
  * 
- * Version: v0.1.17 (12/19/2013)
+ * Version: v0.1.18 (12/19/2013)
  * Minimum requirements: jQuery v1.4+
  *
  * Advanced requirements:
@@ -101,9 +101,6 @@
 			top: 0,
 			left: 0,
 			bottom: 0,
-			width: '80%',
-			maxWidth: '300px',
-			minWidth: '100px',
 			zIndex: 1000,
 			display: 'block',
 			opacity: 1
@@ -175,6 +172,7 @@
 			globals.browser.window_w = $(window).width();
 			globals.browser.window_h = $(window).height();
 			
+			$(settings.obj).css('width', '');
 			settings.resp.menu_w = $(settings.obj).width();
 			settings.resp.menu_h = $(settings.obj).height();
 			
