@@ -29,39 +29,55 @@
 						resize: callback_resize,
 						update: callback_update,
 						start: callback_start,
+						middle: callback_middle,
 						complete: callback_complete,
+						step: callback_step
 					}
 				});
 				
 			});
 			
-			var callback_loaded = function(settings) {
+			var callback_loaded = function(args) {
 			
 				$('#callback-diagnistics').append('&gt;&nbsp;Menu loaded...<br />');
 				
 			}
 			
-			var callback_resize = function(settings) {
+			var callback_resize = function(args) {
 			
 				$('#callback-diagnistics').append('&gt;&nbsp;Window resized.<br />');
 				
 			}
 			
-			var callback_update = function(settings) {
+			var callback_update = function(args) {
 			
 				$('#callback-diagnistics').append('&gt;&nbsp;Menu updated/recalibrated.<br />');
 				
 			}
 			
-			var callback_start = function(settings) {
+			var callback_start = function(args) {
 				
-				$('#callback-diagnistics').append('&gt;&nbsp;Menu slide start.<br />');
+				$('#callback-diagnistics').append('&gt;&nbsp;Menu slide start.<br />&gt;&nbsp;Step percent: <span class = "step">0%</span><br />');
 				
 			}
 			
-			var callback_complete = function(settings) {
+			var callback_middle = function(args) {
+				
+				var is_opening = (args.is_open_past_mid) ? 'opening' : 'closing';
+				
+				$('#callback-diagnistics').append('&gt;&nbsp;Menu slide middle (' + is_opening + ').<br />');
+				
+			}
+
+			var callback_complete = function(args) {
 			
 				$('#callback-diagnistics').append('&gt;&nbsp;Menu slide complete.<br />');
+				
+			}
+			
+			var callback_step = function(args) {
+				
+				$('span.step').last().html(args.perc_open + '%');
 				
 			}
 		</script>

@@ -7,7 +7,7 @@
  * 
  * Copyright (c) 2013 Marc Whitbread
  * 
- * Version: v0.1.20 (12/20/2013)
+ * Version: v0.1.21 (12/20/2013)
  * Minimum requirements: jQuery v1.4+
  *
  * Advanced requirements:
@@ -93,6 +93,12 @@
 				pull_threshold: false,
 				event_start: false,
 				mouse_down: false
+			},
+			callback_fired: {
+				start: false,
+				middle_open: false,
+				middle_close: true,
+				complete: false
 			}
 		},
 		body_css: {
@@ -126,7 +132,9 @@
 			resize: '',
 			update: '',
 			start: '',
-			complete: ''
+			middle: '',
+			complete: '',
+			step: ''
 		}
 	}
 	
@@ -414,9 +422,12 @@
 				
 				settings = helpers.animate_menu_timer(i*timer_step, left, false, settings);
 				
+				//if steps have been generated to stop position already, break loop
+				if(left == offset_left_2) break;
+				
 			}
 			
-			settings = helpers.animate_menu_timer((steps+1)*timer_step, offset_left_2, true, settings);
+			settings = helpers.animate_menu_timer((i+1)*timer_step, offset_left_2, true, settings);
 			
 			return settings;
 			
@@ -440,9 +451,15 @@
 			
 			helpers.set_position(settings, left);
 			
+			settings = helpers.callback.start(settings);
+			
+			settings = helpers.callback.step(settings);
+			
+			settings = helpers.callback.middle(settings);
+			
+			//last animation step only
 			if(is_last_frame)
-				if(settings.callback.complete != '')
-					settings.callback.complete(settings);
+				helpers.callback.complete(settings);
 			
 			return settings;
 			
@@ -477,6 +494,126 @@
 				}
 			}
 		
+		},
+		
+		/* callbacks */
+		callback: {
+			
+			/* simplified arguements object supplied to callbacks */
+			args: function(settings) {
+				
+				var args = {
+					is_open: settings.state.open,
+					is_open_past_mid: settings.state.callback_fired.middle_open,
+					perc_open: Math.round(helpers.get_position(settings) / settings.resp.offset_left_op * 100),
+					settings_raw: settings
+				}
+				
+				return args;
+				
+			},
+			
+			/* reset callback flags */
+			reset: function(settings) {
+			
+				settings.state.callback_fired.start = false;
+				settings.state.callback_fired.middle = false;
+				settings.state.callback_fired.complete = false;
+				
+				return settings;
+				
+			},
+			
+			/* on slider initialization */
+			loaded: function(settings) {
+			
+				if(settings.callback.loaded != '')
+					settings.callback.loaded(helpers.callback.args(settings));
+			
+			},
+				
+			/* on browser resize or orientation change */
+			resize: function(settings) {
+			
+				if(settings.callback.resize != '')
+					settings.callback.resize(helpers.callback.args(settings));
+				
+			},
+			
+			/* on update public method call */
+			update: function(settings) {
+			
+				if(settings.callback.update != '')
+					settings.callback.update(helpers.callback.args(settings));
+				
+			},
+			
+			/* on movement start callback */
+			start: function(settings) {
+				
+				settings.state.callback_fired.complete = false;
+				
+				//callback is set and not already fired
+				if((settings.callback.start != '') && !settings.state.callback_fired.start) {
+					settings.state.callback_fired.start = true;
+					settings.callback.start(helpers.callback.args(settings));
+				}
+				
+				return settings;
+				
+			},
+			
+			/* on movement beyond 50% (half way) open/close */
+			middle: function(settings) {
+			
+				var args = helpers.callback.args(settings);
+				
+				//callback is set and not already fired and passing beyond half way open
+				if((args.perc_open >= 50) && !settings.state.callback_fired.middle_open) {					
+					settings.state.callback_fired.middle_open = true;
+					settings.state.callback_fired.middle_close = false;
+					
+					if(settings.callback.middle != '')
+						settings.callback.middle(helpers.callback.args(settings));
+				}
+				
+				//callback is set and not already fired and passing beyond half way closed
+				if((args.perc_open < 50) && !settings.state.callback_fired.middle_close) {					
+					settings.state.callback_fired.middle_open = false;
+					settings.state.callback_fired.middle_close = true;
+					
+					if(settings.callback.middle != '')
+						settings.callback.middle(helpers.callback.args(settings));
+				}
+			
+				return settings;
+				
+			},
+			
+			/* on movement complete callback */
+			complete: function(settings) {
+				
+				settings.state.callback_fired.start = false;
+				
+				//callback is set and not already fired
+				if((settings.callback.complete != '') && !settings.state.callback_fired.complete) {	
+					settings.state.callback_fired.complete = true;
+					settings.callback.complete(helpers.callback.args(settings));
+				}
+				
+				return settings;
+				
+			},
+			
+			/* on animation step callback */
+			step: function(settings) {
+				
+				if(settings.callback.step != '')
+					settings.callback.step(helpers.callback.args(settings));
+				
+				return settings;
+				
+			}
 		}
         
     }
@@ -504,8 +641,7 @@
 			settings = helpers.set_resp_settings(settings);
 			helpers.set_resp_css(settings);
 			
-			if(settings.callback.loaded != '')
-				settings.callback.loaded(settings);
+			helpers.callback.loaded(settings);
 				
 			//touch/click event data
 			var x_pull = {
@@ -537,6 +673,7 @@
 				
 				if(settings.state.flags.event_start) return true;
 				settings.state.flags.event_start = true;
+				settings = helpers.callback.reset(settings);
 				
 				if((!globals.browser.is_ie7) && (!globals.browser.is_ie8)) e = e.originalEvent;
 				
@@ -626,8 +763,7 @@
 					x_pull.start_position = (menu_offset - x_pull.event) * -1;
 					x_pull.started = true;
 					
-					if(settings.callback.start != '')
-						settings.callback.start(settings);
+					settings = helpers.callback.start(settings);
 				}
 				
 				//if horizontal movement has started and vertical has not
@@ -652,6 +788,9 @@
 					
 					helpers.set_position(settings, new_position);
 					
+					settings = helpers.callback.step(settings);
+					settings = helpers.callback.middle(settings);
+					
 				}
 			
 			});
@@ -669,7 +808,11 @@
 					x_pull.direction = helpers.snap_direction(settings, x_pull);
 				}
 				
-				settings = helpers.animate_menu(settings, x_pull.direction);
+				//menu open or pull has started
+				if(x_pull.started || settings.state.open) {
+					settings = helpers.animate_menu(settings, x_pull.direction);	
+				}
+				
 				helpers.update_data(settings);
 				
 				settings.state.flags.event_start = false;
@@ -680,10 +823,11 @@
 			
 			//orientationchange/resize event binding
 			$(window).bind(globals.browser.orientation_event + '.iosmenu-' + settings.menu_number, function() {
+			
 				methods.update(settings.obj);
 				
-				if(settings.callback.resize != '')
-					settings.callback.resize(settings);
+				helpers.callback.resize(settings);
+					
 			});
 			
 			helpers.update_data(settings);
@@ -718,8 +862,7 @@
 			settings = helpers.set_resp_settings(data.settings);
 			helpers.set_resp_css(settings);
 			
-			if(settings.callback.update != '')
-				settings.callback.update(settings);
+			helpers.callback.update(settings);
 		
 		},
 		
