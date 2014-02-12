@@ -7,7 +7,7 @@
  * 
  * Copyright (c) 2013 Marc Whitbread
  * 
- * Version: v0.1.21 (12/20/2013)
+ * Version: v0.1.23 (12/20/2013)
  * Minimum requirements: jQuery v1.4+
  *
  * Advanced requirements:
@@ -66,6 +66,7 @@
 		menu_number: 0,
 		resp: {
 			menu_w: 0,
+			menu_outer_w: 0,
 			menu_h: 0,
 			offset_left_op: 0,
 			offset_left_cl: 0,
@@ -195,11 +196,12 @@
 			
 			$(settings.obj).css('width', '');
 			settings.resp.menu_w = $(settings.obj).width();
+			settings.resp.menu_outer_w = $(settings.obj).outerWidth(true);
 			settings.resp.menu_h = $(settings.obj).height();
 			
-			settings.resp.offset_left_op = (settings.menu_location == 'left') ? settings.resp.menu_w : -settings.resp.menu_w;
+			settings.resp.offset_left_op = (settings.menu_location == 'left') ? settings.resp.menu_outer_w : -settings.resp.menu_outer_w;
 			settings.resp.offset_left_cl = 0;
-			settings.resp.offset_left_mi = (settings.menu_location == 'left') ? settings.resp.menu_w * 0.5 : settings.resp.menu_w * -0.5;
+			settings.resp.offset_left_mi = (settings.menu_location == 'left') ? settings.resp.menu_outer_w * 0.5 : settings.resp.menu_outer_w * -0.5;
 			
 			settings.resp.pull_threshold_px = parseInt(globals.browser.window_w * settings.touch.pull_threshold_perc, 10);
 			
@@ -368,11 +370,11 @@
 			$('body').css({
 				'left': left + 'px'
 			});
-			
+
 			$(settings.obj).css({
 				'opacity': opacity
 			});
-				
+			
 			settings.bg_obj.css({
 				'opacity': perc,
 				'display': display
@@ -524,7 +526,7 @@
 				
 			},
 			
-			/* on slider initialization */
+			/* on menu initialization */
 			loaded: function(settings) {
 			
 				if(settings.callback.loaded != '')
