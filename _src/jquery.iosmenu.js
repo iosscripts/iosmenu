@@ -1,9 +1,11 @@
 /*
  * iosMenu - http://iosscripts.com/iosmenu/
  * 
- * Title
+ * Touch Enabled, Responsive jQuery Flyout Navigation Menu/Hidden Side Panel Plugin
  *
- * Desc
+ * iosmenu is a jQuery plugin which allows you to integrate a customizable, cross-browser 
+ * fly-out navigation menu into your mobile web presence. Designed for use as a native app 
+ * style fly-out menu or hidden side content panel.
  * 
  * Copyright (c) 2013 Marc Whitbread
  * 
