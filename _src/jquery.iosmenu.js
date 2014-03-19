@@ -9,7 +9,7 @@
  * 
  * Copyright (c) 2013 Marc Whitbread
  * 
- * Version: v0.1.23 (12/20/2013)
+ * Version: v0.2.0 (04/18/2014)
  * Minimum requirements: jQuery v1.4+
  *
  * Advanced requirements:
@@ -91,7 +91,7 @@
 			menu_timeouts: new Array()
 		},
 		state: {
-			open: false,
+			open: true,
 			flags: {
 				pull_threshold: false,
 				event_start: false,
@@ -112,6 +112,7 @@
 			top: 0,
 			left: 0,
 			bottom: 0,
+			overflow: 'auto',
 			zIndex: 1000,
 			display: 'block',
 			opacity: 1
@@ -746,8 +747,8 @@
 				y_pull.rate[1] = y_pull.event;
 				y_pull.distance = (y_pull.rate[0] - y_pull.rate[1]) / 2;
 				
-				//menu open, prevent browser scrolling
-				if(settings.state.open)
+				//menu open, prevent browser scrolling outside of the menu
+				if(settings.state.open && ($(e.target).closest('.iosmenu').length != 1))
 					e.preventDefault();
 				
 				//touch did not originate from within touch threshold
@@ -759,7 +760,7 @@
 					y_pull.started = true;
 				
 				//horizontal velocity is hit before vertical
-				if((x_pull.distance < settings.touch.h_pull_threshold) || (x_pull.distance > (settings.touch.h_pull_threshold * -1)))
+				if(((x_pull.distance < settings.touch.h_pull_threshold) || (x_pull.distance > (settings.touch.h_pull_threshold * -1))) && ($(e.target).closest('.iosmenu').length != 1))
 					e.preventDefault();
 				
 				//horizontal movement is starting
