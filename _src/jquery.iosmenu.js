@@ -9,7 +9,7 @@
  * 
  * Copyright (c) 2013 Marc Whitbread
  * 
- * Version: v0.2.0 (04/18/2014)
+ * Version: v0.2.2 (04/20/2014)
  * Minimum requirements: jQuery v1.4+
  *
  * Advanced requirements:
@@ -673,6 +673,9 @@
 				methods.toggle(settings.obj);
 			});
 			
+			var menu_vertical_scroll_lock_top = false;
+			var menu_vertical_scroll_lock_bottom = false;
+			
 			//touchstart/mousedown event binding
 			$(window).bind('touchstart.iosmenu-' + settings.menu_number + ', mousedown.iosmenu-' + settings.menu_number, function(e) {
 				
@@ -697,6 +700,13 @@
 
 				}
 				
+				//check vertical scroll location of menu
+				if(($(e.target).closest('.iosmenu').length == 1) && ($(e.target).closest('.iosmenu').scrollTop() <= 0))
+					menu_vertical_scroll_lock_top = true;
+					
+				if(($(e.target).closest('.iosmenu').length == 1) && ($(e.target).closest('.iosmenu').scrollTop() >= ($(e.target).closest('.iosmenu')[0].scrollHeight - settings.resp.menu_h)))
+					menu_vertical_scroll_lock_bottom = true;
+									
 				settings.state.flags.pull_threshold = false;
 				
 				x_pull.rate = new Array(0, 0);
@@ -753,11 +763,31 @@
 				
 				//touch did not originate from within touch threshold
 				if((((x_pull.event > settings.resp.pull_threshold) && (settings.menu_location == 'left')) || ((x_pull.event < settings.resp.pull_threshold) && (settings.menu_location != 'left'))) && !x_pull.started && !settings.state.open)
-					return true;	
+					return true;
 				
 				//vertical velocity is hit before horizontal
 				if(((y_pull.distance > settings.touch.v_pull_threshold) || (y_pull.distance < (settings.touch.v_pull_threshold * -1))) && !x_pull.started)
 					y_pull.started = true;
+				
+				//if menu scroll is at top and dragging down
+				if(menu_vertical_scroll_lock_top && (y_pull.distance > 0))
+					menu_vertical_scroll_lock_top = false;
+				
+				//if menu scroll is at bottom and dragging up
+				if(menu_vertical_scroll_lock_bottom && (y_pull.distance < 0))
+					menu_vertical_scroll_lock_bottom = false;
+				
+				//menu scroll is at top and dragging up
+				if(menu_vertical_scroll_lock_top && (y_pull.distance < 0)) {
+					menu_vertical_scroll_lock_top = false;
+					e.preventDefault();	
+				}
+				
+				//menu scroll is at bottom and dragging down
+				if(menu_vertical_scroll_lock_bottom && (y_pull.distance > 0)) {
+					menu_vertical_scroll_lock_bottom = false;
+					e.preventDefault();
+				}
 				
 				//horizontal velocity is hit before vertical
 				if(((x_pull.distance < settings.touch.h_pull_threshold) || (x_pull.distance > (settings.touch.h_pull_threshold * -1))) && ($(e.target).closest('.iosmenu').length != 1))
@@ -823,6 +853,9 @@
 				settings.state.flags.event_start = false;
 				settings.state.flags.mouse_down = false;
 				x_pull.started = false;
+				
+				menu_vertical_scroll_lock_top = false;
+				menu_vertical_scroll_lock_bottom = false;
 				
 			});
 			
