@@ -24,15 +24,13 @@
 				$('.menu').iosMenu({
 					move_with_menu_selector: '.fixed-class',
 					menu_toggle_button_selector: '.header .button',
-					callback: {
-						loaded: callback_loaded,
-						resize: callback_resize,
-						update: callback_update,
-						start: callback_start,
-						middle: callback_middle,
-						complete: callback_complete,
-						step: callback_step
-					}
+					on_loaded: callback_loaded,
+					on_resize: callback_resize,
+					on_update: callback_update,
+					on_start: callback_start,
+					on_middle: callback_middle,
+					on_complete: callback_complete,
+					on_step: callback_step
 				});
 				
 			});

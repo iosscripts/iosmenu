@@ -131,15 +131,13 @@
 		parallax_ratio: 1,
 		menu_toggle_button_selector: '',
 		move_with_menu_selector: '',
-		callback: {
-			loaded: '',
-			resize: '',
-			update: '',
-			start: '',
-			middle: '',
-			complete: '',
-			step: ''
-		}
+		on_loaded: '',
+		on_resize: '',
+		on_update: '',
+		on_start: '',
+		on_middle: '',
+		on_complete: '',
+		on_step: ''
 	}
 	
 	/* private methods */
@@ -532,24 +530,24 @@
 			/* on menu initialization */
 			loaded: function(settings) {
 			
-				if(settings.callback.loaded != '')
-					settings.callback.loaded(helpers.callback.args(settings));
+				if(settings.on_loaded != '')
+					settings.on_loaded(helpers.callback.args(settings));
 			
 			},
 				
 			/* on browser resize or orientation change */
 			resize: function(settings) {
 			
-				if(settings.callback.resize != '')
-					settings.callback.resize(helpers.callback.args(settings));
+				if(settings.on_resize != '')
+					settings.on_resize(helpers.callback.args(settings));
 				
 			},
 			
 			/* on update public method call */
 			update: function(settings) {
 			
-				if(settings.callback.update != '')
-					settings.callback.update(helpers.callback.args(settings));
+				if(settings.on_update != '')
+					settings.on_update(helpers.callback.args(settings));
 				
 			},
 			
@@ -559,9 +557,9 @@
 				settings.state.callback_fired.complete = false;
 				
 				//callback is set and not already fired
-				if((settings.callback.start != '') && !settings.state.callback_fired.start) {
+				if((settings.on_start != '') && !settings.state.callback_fired.start) {
 					settings.state.callback_fired.start = true;
-					settings.callback.start(helpers.callback.args(settings));
+					settings.on_start(helpers.callback.args(settings));
 				}
 				
 				return settings;
@@ -578,8 +576,8 @@
 					settings.state.callback_fired.middle_open = true;
 					settings.state.callback_fired.middle_close = false;
 					
-					if(settings.callback.middle != '')
-						settings.callback.middle(helpers.callback.args(settings));
+					if(settings.on_middle != '')
+						settings.on_middle(helpers.callback.args(settings));
 				}
 				
 				//callback is set and not already fired and passing beyond half way closed
@@ -587,8 +585,8 @@
 					settings.state.callback_fired.middle_open = false;
 					settings.state.callback_fired.middle_close = true;
 					
-					if(settings.callback.middle != '')
-						settings.callback.middle(helpers.callback.args(settings));
+					if(settings.on_middle != '')
+						settings.on_middle(helpers.callback.args(settings));
 				}
 			
 				return settings;
@@ -601,9 +599,9 @@
 				settings.state.callback_fired.start = false;
 				
 				//callback is set and not already fired
-				if((settings.callback.complete != '') && !settings.state.callback_fired.complete) {	
+				if((settings.on_complete != '') && !settings.state.callback_fired.complete) {	
 					settings.state.callback_fired.complete = true;
-					settings.callback.complete(helpers.callback.args(settings));
+					settings.on_complete(helpers.callback.args(settings));
 				}
 				
 				return settings;
@@ -613,8 +611,8 @@
 			/* on animation step callback */
 			step: function(settings) {
 				
-				if(settings.callback.step != '')
-					settings.callback.step(helpers.callback.args(settings));
+				if(settings.on_step != '')
+					settings.on_step(helpers.callback.args(settings));
 				
 				return settings;
 				
