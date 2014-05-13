@@ -91,7 +91,7 @@
 			menu_timeouts: new Array()
 		},
 		state: {
-			open: true,
+			open: false,
 			flags: {
 				pull_threshold: false,
 				event_start: false,
@@ -157,7 +157,10 @@
 			
 			globals.menu_count++;
 			
-			var settings = $.extend(true, default_settings, custom_settings);
+			//clone defaults without reference
+			var default_deep_copy = $.extend(true, {}, default_settings);
+			
+			var settings = $.extend(true, default_deep_copy, custom_settings);
 			settings.menu_number = globals.menu_count;
 			
 			return settings;
